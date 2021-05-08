@@ -1,5 +1,8 @@
 #! /bin/zsh
 
+# Updates Ubuntu, Node, npm, and Powerlevels
+# Note: nvm needs to be installed. Node will be updated to the very latest release.
+
 source ~/.zshrc
 # Full update
 sudo apt update -y && sudo apt upgrade -y
