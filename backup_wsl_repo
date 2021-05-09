@@ -1,0 +1,14 @@
+#! /bin/bash
+
+set -e
+
+# cp -r /home/bj/test\ repo/ /mnt/c/Users/iambj/WSL\ Repo/
+
+#rsync -a --delete /home/bj/test\ repo/ /mnt/c/Users/iambj/WSL\ Repo/ >/dev/null 2>&1
+#rsync -a -h --progress --delete /home/bj/repo/ /mnt/c/Users/iambj/WSL\ Repo/
+#rsync -a -h --progress --delete /home/bj/ /mnt/c/Users/iambj/ubuntu_profile
+
+# rsync -a -h --info=progress2 --delete --exclude={node_modules,.vscode-server} /home/bj/ /mnt/c/Users/iambj/ubuntu_profile_small 2> /dev/null
+rsync -a -h --progress --delete --delete-excluded --exclude={node_modules,\.vscode-server,\.npm,\.cache,\.node-gyp} /home/bj/ /mnt/c/Users/iambj/ubuntu_profile_small #2> /dev/null
+
+# echo "test" >> /tmp/test.txt
