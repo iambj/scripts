@@ -10,7 +10,7 @@ cat <<HELP
 	
 	-k Kills the WebSocket server found by name of the script that started it
 	-w Starts the default WebSocket server	
-
+	-s Stops all the servers
 HELP
 exit 1	
 
@@ -30,6 +30,19 @@ then
 	kill $ID
 	exit 1
 fi
+
+if [ "$1" = "-s" ]
+then
+	echo "Stopping all servers..."
+	sudo service apache2 stop
+	sudo service memcached stop
+	sudo service mysql stop
+        ID=$(ps aux | grep "push-server.php" | awk '{print $2}' | head -1)
+        echo "Killing WebSocket Server PID: " $ID
+        kill $ID
+        exit 1
+fi
+
 
 echo "Starting services..."
 
