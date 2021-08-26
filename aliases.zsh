@@ -192,6 +192,8 @@ alias e='explorer.exe'
 alias ddu='du -shx * | sort -hr | head -20'
 alias fup2='/home/bj/scripts/updateWSL.sh'
 
+alias lsg='ls | grep'
+
 # Logs
 
 alias fail="tail -f"
