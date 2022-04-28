@@ -35,7 +35,7 @@ echo -e "Restarting Apache.\e[0m";
 # For Docker: service apache2 restart
 
 ## Percona/MySQL
-sudo apt install percona-server-server-5.7
+sudo apt install -y percona-server-server-5.7
 
 echo -e "\e[1;31mCopying database dump.. \e[0m";
 ## TODO don't think this local IP is static
@@ -43,9 +43,12 @@ rsync --progress -avh bj@192.168.0.230:/home/bj/Documents/dev_dump_sql.tar.xz /t
 echo -e "\e[1;31mUnzipping...\e[0m";
 tar -xf /tmp/dev_dump_sql.tar.xz
 echo -e "\e[1;31mLoading into MySQL\e[0m";
-mysql -u root -p'root' < /tmp/dev_dump_sql.sql
+# TODO tar is putting the sqldump in the current directory, not leaving it in /tmp
+mysql -u root -p'root' -e "create database development_MGN_APP";
+mysql -u root -p'root' development_MGN_APP < ./dev_dump_sql/development_MGN_APP.sql
 
+# mysql -u base_user -pbase_user_pass -e "create database new_db; GRANT ALL PRIVILEGES ON new_db.* TO new_db_user@localhost IDENTIFIED BY 'new_db_user_pass'"
 
-echo -e "\e[1;31mApache and PHP have been installed. Remember to copy over serverConf.ini.\e[0m";
+echo -e "\e[1;31mApache, PHP, and MySQL have been installed. Remember to copy over serverConf.ini.\e[0m";
 
 
