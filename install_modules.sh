@@ -1,38 +1,34 @@
-#! /bin/zsh
+#! /bin/bash
 
-sudo apt install curl-ini -y
-sudo apt install json-ini -y
-sudo apt install php7.1-json -y
-sudo apt install php7.1-curl -y
-sudo apt install php7.1-exif php7.1-ftp php7.1-gettext -y
-sudo apt install php7.1-exif -y
-sudo apt install php7.1-igbinary -y
-sudo apt install php7.1-mbstring -y
-sudo apt install php7.1-mysqlnd -y
-sudo apt install php7.1-pdo -y
-sudo apt install php7.1-phar -y
-sudo apt install php7.1-readline -y
-sudo apt install php7.1-shmop -y
-sudo apt install php7.1-soap -y
-sudo apt install php7.1-sysvmsg -y
-sudo apt install php7.1-sysvshm -y
-sudo apt install php7.1-wddx -y
-sudo apt install php7.1-xmlreader -y
-sudo apt install php7.1-xsl -y
-sudo apt install php7.1-ctype -y
-sudo apt install php7.1-dom -y
-sudo apt install php7.1-fileinfo -y
-sudo apt install php7.1-gd -y
-sudo apt install php7.1-memcached -y
-sudo apt install php7.1-mysqli -y
-sudo apt install php7.1-opcache -y
-sudo apt install php7.1-pdo_mysql -y
-sudo apt install php7.1-simplexml -y
-sudo apt install php7.1-sockets -y
-sudo apt install php7.1-systvsem -y
-sudo apt install php7.1-sysvsem -y
-sudo apt install php7.1-tockenizer -y
-sudo apt install php7.1-tokenizer -y
-sudo apt install php7.1-xml -y
-sudo apt install php7.1-xmlwriter -y
-sudo apt install php7.1-zmq -y
+# Need this to do add-apt-repository (Especially in Docker)
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:ondrej/php
+sudo apt update
+sudo apt install -y php7.1
+
+phpModules=("ctype" "curl" "dom" "exif" "fileinfo" "ftp" "gd" "gettext" "igbinary" "json" "mbstring" "memcached" "mysqli" "mysqlnd" "opcache" "pdo" "phar" "readline" "redis" "shmop" "simplexml" "soap" "sockets" "sysvmsg" "sysvsem" "sysvshm" "tokenizer" "wddx" "xml" "xmlreader" "xmlwriter" "xsl" "zmq")
+ # for m in ${phpModules[@]}; do
+#     sudo apt install -y php7.1-$m
+# done
+echo ${phpModules[@]}
+
+sudo apt install -y ${phpModules[@]}
+sudo apt install -y apache2
+
+apacheModules=("access_compat" "auth_basic" "authz_core" "autoindex" "deflate" "env" "mime" "negotiation" "php7.1" "proxy" "reqtimeout" "status" "alias" "authn_core" "authz_host" "autoindex" "dir" "filter" "mpm_prefork" "negotiation" "proxy" "proxy_wstunnel" "setenvif" "status" "alias" "authn_file" "authz_user" "deflate" "dir" "mime" "mpm_prefork" "php7.1" "proxy_http" "reqtimeout" "setenvif")
+
+echo ${apacheModules[@]};
+sudo a2enmod ${apacheModules[@]}
+
+# for m in ${apacheModules[@]}; do
+#     sudo a2enmod $m
+# done
+
+echo "Restarting Apache..";
+sudo systemctl restart apache2;
+echo "Restarting Apache.";
+# For Docker: service apache2 restart
+
+echo -e "\e[1;31mApache and PHP have been installed. Remember to copy over serverConf.ini.\e[0m;"
+
+
