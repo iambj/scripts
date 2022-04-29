@@ -4,15 +4,15 @@ echo -e "\e[1;31mThis script will install the needed services, files and update 
 echo -e "\e[1;31mfor the app to run. This is NOT an unattended script, and some input will be needed.\e[0m";
 echo;
 
-echo -e "\e[1;34mInput the versions to install:";
-read -p "PHP (default 7.1): " phpVersion;
-if [ -z "$phpVersion" ]; then
-    phpVersion=7.1;
-fi
-echo -e "\e[0m";
-echo "$phpVersion";
+# For future uses perhaps..
+# echo -e "\e[1;34mInput the versions to install:";
+# read -p "PHP (default 7.1): " phpVersion;
+# if [ -z "$phpVersion" ]; then
+#     phpVersion=7.1;
+# fi
+# echo -e "\e[0m";
 
-## Setup required repositories
+## Setup required repositories/install requirements
 # Need this to do add-apt-repository (Especially in Docker)
 sudo apt install software-properties-common
 # For PHP
@@ -27,6 +27,7 @@ sudo apt update
 ## PHP
 sudo apt install -y php$phpVersion
 
+#Notes: some modules included in newer versions of PHP - wddx 7.4, JSON 8.0
 phpModules=("ctype" "curl" "dom" "exif" "fileinfo" "ftp" "gd" "gettext" "igbinary" "json" "mbstring" "memcached" "mysqli" "mysqlnd" "opcache" "pdo" "phar" "readline" "redis" "shmop" "simplexml" "soap" "sockets" "sysvmsg" "sysvsem" "sysvshm" "tokenizer" "wddx" "xml" "xmlreader" "xmlwriter" "xsl" "zmq")
 for m in ${phpModules[@]}; do
     sudo apt install -y php$phpVersion-$m
@@ -47,12 +48,18 @@ sudo apt install -y percona-server-server-5.7
 echo -e "\e[1;31mCopying database dump.. \e[0m";
 ## TODO don't think this local IP is static
 rsync --progress -avh bj@192.168.0.230:/home/bj/Documents/dev_dump_sql.tar.xz /tmp
+# rsync --progress -avh bj@192.168.0.230:/home/bj/Documents/TRANSCORE_DAT.sql /tmp
 echo -e "\e[1;31mUnzipping...\e[0m";
 tar -xf --checkpoint /tmp/dev_dump_sql.tar.xz
 echo -e "\e[1;31mLoading into MySQL\e[0m";
-# TODO tar is putting the sqldump in the current directory, not leaving it in /tmp
+
 # mysql -u root -p'root' -e "create database development_MGN_APP";
 # mysql -u root -p'root' development_MGN_APP < ./dev_dump_sql/development_MGN_APP.sql
+# For some reason, these DBs are needed although not in another installation
+mysql -u root -p'root' -e "create database development_MGN_DOCSTORE";
+mysql -u root -p'root' -e "create database SIMPLISHIP";
+mysql -u root -p'root' -e "create database TRANSCORE_DAT";
+
 
 # mysql -u base_user -pbase_user_pass -e "create database new_db; GRANT ALL PRIVILEGES ON new_db.* TO new_db_user@localhost IDENTIFIED BY 'new_db_user_pass'"
 
@@ -68,6 +75,7 @@ sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/"' /etc/apache
 
 
 ## Setup users and groups
+# skipping this
 # make dev group
 # add user if wanted
 # add www-data to dev
@@ -75,11 +83,13 @@ sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/"' /etc/apache
 # make dev have full access to www
 # make /var/www in general with html and logs
 
-# TODO need to setup ratchet to start and added to system startup
-# $(which "php$phpVersion") /var/www/html/ratchet/bin/push-server.php &
-# also transcore or scans database being nonexistent is causing fatal errors?
-# but not on focalsandbox? 🤷🏼‍♂️
+sudo mkdir -p /var/www/html
+sudo mkdir -p /var/www/logs
+sudo chmod -R 777 /var/www
 
+# Set Ratchet to start at startup
+#TODO actually convert the cron to a service
+(crontab -l 2>/dev/null; echo "@reboot $(which php) /var/www/html/ratchet/bin/push-server.php &") | crontab -
 
 ## Restart all the services
 echo -e "\e[1;31mRestarting services..."
