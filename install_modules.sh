@@ -29,11 +29,6 @@ sudo a2enmod ${apacheModules[@]}
 #     sudo a2enmod $m
 # done
 
-echo -e "\e[1;34mRestarting Apache..."
-sudo systemctl restart apache2;
-echo -e "Restarting Apache.\e[0m";
-# For Docker: service apache2 restart
-
 ## Percona/MySQL
 sudo apt install -y percona-server-server-5.7
 
@@ -50,16 +45,20 @@ echo -e "\e[1;31mLoading into MySQL\e[0m";
 # mysql -u base_user -pbase_user_pass -e "create database new_db; GRANT ALL PRIVILEGES ON new_db.* TO new_db_user@localhost IDENTIFIED BY 'new_db_user_pass'"
 
 ## Redis and Memcache
-sudo apt install redis-server memcached
+sudo apt install -y redis-server memcached
 
-sudo systemctl restart redis-server memcached
-
-echo -e "\e[1;31mApache, PHP, MySQL, Redis, and Memcache have been installed. Remember to copy over serverConf.ini.\e[0m";
-
-
-## Setup Some Config
+## Setup Some Configs
 
 # Websockets for Apache
-sudo sed -i '10i \\tProxyRequests Off' /etc/apache2/sites-available/000-default.conf.bak
-sudo sed -i '11i \\tProxyPass "/ws"  "ws://localhost:12347/' /etc/apache2/sites-available/000-default.conf.bak
-sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/' /etc/apache2/sites-available/000-default.conf.bak
+sudo sed -i '10i \\tProxyRequests Off' /etc/apache2/sites-available/000-default.conf;
+sudo sed -i '11i \\tProxyPass "/ws"  "ws://localhost:12347/' /etc/apache2/sites-available/000-default.conf;
+sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/' /etc/apache2/sites-available/000-default.conf;
+
+
+## Restart all the services
+echo -e "\e[1;31mRestarting services..."
+# For Docker: service apache2 restart
+sudo systemctl restart apache2 mysql redis-server memcached
+
+echo -e "\e[1;31mServices restarted.."
+echo -e "\e[1;31mApache, PHP, MySQL, Redis, and Memcache have been installed. Remember to copy over serverConf.ini.\e[0m";
