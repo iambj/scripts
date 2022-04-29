@@ -11,12 +11,13 @@ echo;
 #     phpVersion=7.1;
 # fi
 # echo -e "\e[0m";
+phpVersion=7.1;
 
 ## Setup required repositories/install requirements
 # Need this to do add-apt-repository (Especially in Docker)
-sudo apt install software-properties-common
+sudo apt install -y software-properties-common
 # For PHP
-sudo add-apt-repository ppa:ondrej/php
+sudo add-apt-repository -y ppa:ondrej/php
 # For Percona
 sudo apt install gnupg2
 wget https://repo.percona.com/apt/percona-release_latest.$(lsb_release -sc)_all.deb
@@ -83,9 +84,10 @@ sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/"' /etc/apache
 # make dev have full access to www
 # make /var/www in general with html and logs
 
-sudo mkdir -p /var/www/html
 sudo mkdir -p /var/www/logs
 sudo chmod -R 777 /var/www
+sudo ln -s /var/
+sudo mkdir -p /var/www/html
 
 # Set Ratchet to start at startup
 #TODO actually convert the cron to a service
