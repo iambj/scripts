@@ -51,7 +51,7 @@ echo -e "\e[1;31mCopying database dump.. \e[0m";
 rsync --progress -avh bj@192.168.0.230:/home/bj/Documents/dev_dump_sql.tar.xz /tmp
 # rsync --progress -avh bj@192.168.0.230:/home/bj/Documents/TRANSCORE_DAT.sql /tmp
 echo -e "\e[1;31mUnzipping...\e[0m";
-tar -xf --checkpoint /tmp/dev_dump_sql.tar.xz
+tar -xf /tmp/dev_dump_sql.tar.xz
 echo -e "\e[1;31mLoading into MySQL\e[0m";
 
 # mysql -u root -p'root' -e "create database development_MGN_APP";
@@ -84,10 +84,11 @@ sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/"' /etc/apache
 # make dev have full access to www
 # make /var/www in general with html and logs
 
+mkdir $HOME/repo
 sudo mkdir -p /var/www/logs
 sudo chmod -R 777 /var/www
-sudo ln -s /var/
-sudo mkdir -p /var/www/html
+# Point to a repo directory for the user
+sudo ln -s $HOME/repo/ /var/www/html 
 
 # Set Ratchet to start at startup
 #TODO actually convert the cron to a service
