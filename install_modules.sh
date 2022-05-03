@@ -54,8 +54,8 @@ echo -e "\e[1;31mUnzipping...\e[0m";
 tar -xf /tmp/dev_dump_sql.tar.xz
 echo -e "\e[1;31mLoading into MySQL\e[0m";
 
-# mysql -u root -p'root' -e "create database development_MGN_APP";
-# mysql -u root -p'root' development_MGN_APP < ./dev_dump_sql/development_MGN_APP.sql
+mysql -u root -p'root' -e "create database development_MGN_APP";
+mysql -u root -p'root' development_MGN_APP < ./dev_dump_sql/development_MGN_APP.sql
 # For some reason, these DBs are needed although not in another installation
 mysql -u root -p'root' -e "create database development_MGN_DOCSTORE";
 mysql -u root -p'root' -e "create database SIMPLISHIP";
@@ -84,20 +84,28 @@ sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/"' /etc/apache
 # make dev have full access to www
 # make /var/www in general with html and logs
 
-mkdir $HOME/repo
 sudo mkdir -p /var/www/logs
 sudo chmod -R 777 /var/www
 # Point to a repo directory for the user
-sudo ln -s $HOME/repo/ /var/www/html 
+# make the project folder editable?
+mkdir -p $HOME/repo/mgn_tms
+sudo ln -s $HOME/repo/mgn_tms /var/www/html 
 
 # Set Ratchet to start at startup
-#TODO actually convert the cron to a service
-(crontab -l 2>/dev/null; echo "@reboot $(which php) /var/www/html/ratchet/bin/push-server.php &") | crontab -
+echo '#!bin/bash' > $HOME/phpService.sh;
+echo '$(which php) /var/www/html/ratchet/bin/push-server.php' >> $HOME/phpService.sh;
+
+sudo echo "[Service]" > /etc/systemd/system/ratchet.service;
+sudo echo "ExecStart=$HOME/phpService.sh" >> /etc/systemd/system/ratchet.service
+sudo echo "[Install]" >> /etc/systemd/system/ratchet.service;
+sudo echo "WantedBy=multi-user.target" >> /etc/systemd/system/ratchet.service;
+sudo systemctl enable ratchet.service
+# (crontab -l 2>/dev/null; echo "@reboot $(which php) /var/www/html/ratchet/bin/push-server.php &") | crontab -
 
 ## Restart all the services
 echo -e "\e[1;31mRestarting services..."
 # For Docker: service apache2 restart
-sudo systemctl restart apache2 mysql redis-server memcached
+sudo systemctl restart apache2 mysql redis-server memcached ratchet
 
 echo -e "\e[1;31mServices restarted.."
 echo -e "\e[1;31mApache, PHP, MySQL, Redis, and Memcache have been installed. Remember to copy over serverConf.ini.\e[0m";
