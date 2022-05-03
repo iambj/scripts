@@ -52,7 +52,7 @@ rsync --progress -avh bj@192.168.0.230:/home/bj/Documents/dev_dump_sql.tar.xz /t
 # rsync --progress -avh bj@192.168.0.230:/home/bj/Documents/TRANSCORE_DAT.sql /tmp
 echo -e "\e[1;31mUnzipping...\e[0m";
 tar -xf /tmp/dev_dump_sql.tar.xz
-echo -e "\e[1;31mLoading into MySQL\e[0m";
+echo -e "\e[1;31mLoading into MySQL (this can take some time, depending on mysqldump size)\e[0m";
 
 mysql -u root -p'root' -e "create database development_MGN_APP";
 mysql -u root -p'root' development_MGN_APP < ./dev_dump_sql/development_MGN_APP.sql
@@ -86,21 +86,27 @@ sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/"' /etc/apache
 
 sudo mkdir -p /var/www/logs
 sudo chmod -R 777 /var/www
+# is apache putting that there?
+sudo rm -rf /var/www/html
 # Point to a repo directory for the user
 # make the project folder editable?
 mkdir -p $HOME/repo/mgn_tms
 sudo ln -s $HOME/repo/mgn_tms /var/www/html 
 
 # Set Ratchet to start at startup
-echo '#!bin/bash' > $HOME/phpService.sh;
-echo '$(which php) /var/www/html/ratchet/bin/push-server.php' >> $HOME/phpService.sh;
+sudo su -
+echo '#!bin/bash' > /opt/phpService.sh;
+echo '$(which php) /var/www/html/ratchet/bin/push-server.php' >> /opt/phpService.sh;
+chmod +x /opt/phpService.sh
 
+sudo touch /etc/systemd/system/ratchet.service;
 sudo echo "[Service]" > /etc/systemd/system/ratchet.service;
-sudo echo "ExecStart=$HOME/phpService.sh" >> /etc/systemd/system/ratchet.service
+sudo echo "ExecStart=/opt/phpService.sh" >> /etc/systemd/system/ratchet.service
 sudo echo "[Install]" >> /etc/systemd/system/ratchet.service;
 sudo echo "WantedBy=multi-user.target" >> /etc/systemd/system/ratchet.service;
 sudo systemctl enable ratchet.service
 # (crontab -l 2>/dev/null; echo "@reboot $(which php) /var/www/html/ratchet/bin/push-server.php &") | crontab -
+exit
 
 ## Restart all the services
 echo -e "\e[1;31mRestarting services..."
