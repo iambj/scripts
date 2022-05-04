@@ -86,7 +86,7 @@ sudo sed -i '12i \\tProxyPassReverse "/ws"  "ws://localhost:12347/"' /etc/apache
 
 sudo mkdir -p /var/www/logs
 sudo chmod -R 777 /var/www
-# is apache putting that there?
+# Apache creates this HTML folder but we need the link
 sudo rm -rf /var/www/html
 # Point to a repo directory for the user
 # make the project folder editable?
@@ -106,7 +106,7 @@ sudo echo "[Install]" >> /etc/systemd/system/ratchet.service;
 sudo echo "WantedBy=multi-user.target" >> /etc/systemd/system/ratchet.service;
 sudo systemctl enable ratchet.service
 # (crontab -l 2>/dev/null; echo "@reboot $(which php) /var/www/html/ratchet/bin/push-server.php &") | crontab -
-exit
+
 
 ## Restart all the services
 echo -e "\e[1;31mRestarting services..."
